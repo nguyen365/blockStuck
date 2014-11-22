@@ -26,6 +26,15 @@ void Image::render(SDL_Renderer* iRen)
     renderTexture(CTexture,iRen,XCoor,YCoor);
 }
 
+bool Image::move(int iX, int iY)
+{
+  if (XCoor + iX >= SCREEN_WIDTH || YCoor + iY >= SCREEN_HEIGHT)
+    return false;
+  XCoor += iX;
+  YCoor += iY;
+  return true;
+}
+
 AppWindow::AppWindow()
 {
   CRunning = false;
@@ -87,8 +96,8 @@ void AppWindow::run()
 {
   while (isRunning())
     {
-      render();
       handleEvents();
+      render();
     }
     quit();
 }
@@ -102,20 +111,23 @@ void AppWindow::quit()
 
 bool AppWindow::loadImages()
 {
-  SDL_Texture* background = loadTexture(CResPath + "window_blue_0.png", CRenderer);
-  SDL_Texture* image = loadTexture(CResPath + "borderdecoration.png", CRenderer);
-  if (!background || !image)
+  for (unsigned i = 0; IMAGE_NAMES[i] != END_NAME; i++)
     {
-      SDL_DestroyTexture(background);
-      SDL_DestroyTexture(image);
-      SDL_DestroyWindow(CWindow);
-      SDL_DestroyRenderer(CRenderer);
-      SDL_Quit();
-      return false;
+      SDL_Texture* ITexture = loadTexture(CResPath + IMAGE_NAMES[i], CRenderer);
+      if (!ITexture)
+	{
+	  logSDLError(std::cerr, "loadImages");
+	  SDL_DestroyTexture(ITexture);
+	  return false;
+	}
+      CTextureList.push_back(ITexture);
     }
-  CImageList.push_back(Image(background,SCREEN_X_TOP,SCREEN_Y_TOP,SCREEN_WIDTH,SCREEN_HEIGHT));
-  CImageList.push_back(Image(image,SCREEN_X_TOP,SCREEN_Y_TOP));
+  CImageList.push_back(Image(CTextureList[0],SCREEN_X_TOP,SCREEN_Y_TOP,SCREEN_WIDTH,SCREEN_HEIGHT));
+  CImageList.push_back(Image(CTextureList[3],SCREEN_X_TOP,SCREEN_Y_TOP,RenderGridWidth,RenderGridHeight));
   centreImage(CImageList[1]);
+  CImageList.push_back(Image(CTextureList[2],SCREEN_X_TOP,SCREEN_Y_TOP,TILE_SIZE,TILE_SIZE));
+  centreImage(CImageList[2]);
+  CImageList[2].move(7,6);
   return true;
 }
 
@@ -139,19 +151,19 @@ void AppWindow::handleEvents()
 	  switch( IEvent.key.keysym.sym )
 	    {
 	    case SDLK_UP:
-	      
+	      CImageList[2].move(0,-1 * TILE_SIZE);
 	      break;
 
 	    case SDLK_DOWN:
-	      
+	      CImageList[2].move(0,TILE_SIZE);
 	      break;
 
 	    case SDLK_LEFT:
-	      
+	      CImageList[2].move(-1 * TILE_SIZE,0);
 	      break;
 
 	    case SDLK_RIGHT:
-	      
+	      CImageList[2].move(TILE_SIZE, 0);
 	      break;
 	      
 	    case SDLK_ESCAPE:

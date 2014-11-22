@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "RES_PATH.h"
+#include "tetrisGame.h"
 //#include "CLEAN_UP.h"
 
 #ifndef __APP_WINDOW_H__
@@ -12,8 +13,13 @@ const int SCREEN_X_TOP = 0;
 const int SCREEN_Y_TOP = 0;
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-const int TILE_SIZE = 40;
+const int TILE_SIZE = 15;
+const int RenderGridWidth = TILE_SIZE * (CGridLength + 1) - 1;
+const int RenderGridHeight = TILE_SIZE * (CGridHeight - 1) + 4;
 const char WINDOW_NAME [] = "blockStuck";
+const char BLOCK_FOLDER [] = "colorblocks/";
+const std::string IMAGE_NAMES [] = { "window_blue_0.png", "borderdecoration.png", std::string(BLOCK_FOLDER) + "blue.png", "BlankValentinesPanel.png", "NULL"};
+const char END_NAME [] = "NULL";
 
 struct Image
 {
@@ -26,6 +32,7 @@ struct Image
   Image(SDL_Texture* iTexture, int iX, int iY, int iW, int iH);
   ~Image();
   void render(SDL_Renderer* iRen);
+  bool move(int iX, int iY);
 };
 
 class AppWindow
@@ -35,6 +42,7 @@ class AppWindow
   SDL_Window* CWindow;
   SDL_Renderer* CRenderer;
   std::vector<Image> CImageList;
+  std::vector<SDL_Texture*> CTextureList;
   std::string CResPath;
  public:
   AppWindow();
