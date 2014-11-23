@@ -35,6 +35,15 @@ bool Image::move(int iX, int iY)
   return true;
 }
 
+bool Image::set(int iX, int iY)
+{
+  if (iX >= SCREEN_WIDTH || iY >= SCREEN_HEIGHT)
+    return false;
+  XCoor = iX;
+  YCoor = iY;
+  return true;
+}
+
 AppWindow::AppWindow()
 {
   CRunning = false;
@@ -94,6 +103,7 @@ int AppWindow::init()
 
 void AppWindow::run()
 {
+  CGame.addBlock();
   while (isRunning())
     {
       handleEvents();
@@ -122,20 +132,31 @@ bool AppWindow::loadImages()
 	}
       CTextureList.push_back(ITexture);
     }
-  CImageList.push_back(Image(CTextureList[0],SCREEN_X_TOP,SCREEN_Y_TOP,SCREEN_WIDTH,SCREEN_HEIGHT));
-  CImageList.push_back(Image(CTextureList[3],SCREEN_X_TOP,SCREEN_Y_TOP,RenderGridWidth,RenderGridHeight));
-  centreImage(CImageList[1]);
-  CImageList.push_back(Image(CTextureList[2],SCREEN_X_TOP,SCREEN_Y_TOP,TILE_SIZE,TILE_SIZE));
-  centreImage(CImageList[2]);
-  CImageList[2].move(7,6);
+  CImageList.push_back(Image(CTextureList[TBackground],SCREEN_X_TOP,SCREEN_Y_TOP,SCREEN_WIDTH,SCREEN_HEIGHT));
+  CImageList.push_back(Image(CTextureList[TGameWindow],SCREEN_X_TOP,SCREEN_Y_TOP,RenderGridWidth,RenderGridHeight));
+  centreImage(CImageList[IGameWindow]);
+  CImageList.push_back(Image(CTextureList[TBlock+5],SCREEN_X_TOP,SCREEN_Y_TOP,TILE_SIZE,TILE_SIZE));
+  CGameWindow.x = CImageList[IGameWindow].XCoor + GameWindowMargin;
+  CGameWindow.y = CImageList[IGameWindow].YCoor + GameWindowMargin;
+  CGameWindow.w = CImageList[IGameWindow].XCoor + CImageList[1].CWidth + GameWindowMargin;
+  CGameWindow.h = CImageList[IGameWindow].YCoor + CImageList[1].CHeight - GameWindowMargin;
+  CImageList[ICursor].set(CGameWindow.x,CGameWindow.h);
   return true;
 }
 
 void AppWindow::render()
 {
+  std::vector<Block> BlockList = CGame.getBlockList();
+    for (unsigned i = 0; i < BlockList.size(); i++)
+      CImageList.push_back(Image(CTextureList[BlockList[i].getColour() + TBlock],
+				 BlockList[i].getX() * TILE_SIZE + CGameWindow.x,
+				 CGameWindow.h - BlockList[i].getY() * TILE_SIZE,
+				 TILE_SIZE, TILE_SIZE));
   SDL_RenderClear(CRenderer);
   for (unsigned i = 0; i < CImageList.size(); i++)
     CImageList[i].render(CRenderer);
+  for (unsigned i = 0; i < BlockList.size(); i++)
+    CImageList.pop_back();
   SDL_RenderPresent(CRenderer);
 }
 

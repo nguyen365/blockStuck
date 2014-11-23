@@ -31,6 +31,11 @@ int Block::getY()
   return YCoor;
 }
 
+colour Block::getColour()
+{
+  return cColour;
+}
+
 bool Block::isEqual(Block iBlock)
 {
   if (this->XCoor == iBlock.XCoor &&
@@ -124,6 +129,11 @@ bool BlockCollection::blockExist(Block iBlock)
   return false;
 }
 
+std::vector<Block> BlockCollection::getBlockList()
+{
+  return cBlockList;
+}
+
 TetrisGame::TetrisGame(int iLevel, int iSeed)
   : cSeed(iSeed) , cLevel(iLevel) , 
     cStatus(RUNNING), cTick(0)
@@ -144,4 +154,29 @@ bool TetrisGame::rotateBlock()
 bool TetrisGame::iterateLevel()
 {
   return playerTetromino.move(0,1);
+}
+
+std::vector<Block> TetrisGame::getBlockList()
+{
+  std::vector<Block> allBlocks;
+  std::vector<Block> loadedBlocks = playerTetromino.getBlockList();
+  for (unsigned i = 0; i < loadedBlocks.size(); i++)
+    allBlocks.push_back(loadedBlocks.at(i));
+  loadedBlocks = tetrominoStack.getBlockList();
+  for (unsigned i = 0; i < loadedBlocks.size(); i++)
+    allBlocks.push_back(loadedBlocks.at(i));
+  return allBlocks;
+}
+
+void TetrisGame::addBlock()
+{
+  for (unsigned i = 0; i < 10; i++)
+    tetrominoStack.addBlock(Block(i,1,CYAN));
+  tetrominoStack.addBlock(Block(2,2,YELLOW));
+  tetrominoStack.addBlock(Block(2,3,PURPLE));
+  tetrominoStack.addBlock(Block(2,4,GREEN));
+  tetrominoStack.addBlock(Block(3,2,RED));
+  tetrominoStack.addBlock(Block(4,2,BLUE));
+  tetrominoStack.addBlock(Block(6,2,ORANGE));
+  tetrominoStack.addBlock(Block(5,2,CYAN));
 }

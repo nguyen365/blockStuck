@@ -20,6 +20,7 @@ class Block
   bool move(int,int);
   int getX();
   int getY();
+  colour getColour();
   bool moveTo(int,int);
   bool isEqual(Block iBlock);
 };
@@ -38,6 +39,7 @@ class BlockCollection
   bool mergeCollection(BlockCollection);
   bool move(int,int);
   bool rotate();
+  std::vector<Block> getBlockList();
  private:
   bool blockExist(Block);
 };
@@ -55,8 +57,12 @@ class TetrisGame
  public:
   TetrisGame(int iLevel = 0, int iSeed = 0);
   ~TetrisGame();
+  bool moveBlock();
   bool rotateBlock();
   bool iterateLevel();
+  std::vector<Block> getBlockList();
+  //debug
+  void addBlock();
  private:
   bool eraseLine(int iY);
 };
