@@ -171,6 +171,22 @@ void AppWindow::handleEvents()
 	{
 	  switch( IEvent.key.keysym.sym )
 	    {
+	    case SDLK_a:
+	      CGame.moveBlock(-1,0);
+	      break;
+
+	    case SDLK_d:
+	      CGame.moveBlock(1,0);
+	      break;
+
+	    case SDLK_w:
+	      CGame.rotateBlock();
+	      break;
+
+	    case SDLK_s:
+	      CGame.moveBlock(0,-1);
+	      break;
+	      
 	    case SDLK_UP:
 	      CImageList[2].move(0,-1 * TILE_SIZE);
 	      break;

@@ -22,5 +22,6 @@ $(OBJ)%.o: $(SRC)%.cpp
 
 clean:
 #rm $(wildcard $(OBJ)*.o) && rm $(BIN)$(EXE) && rm $(wildcard $(SRC)*.o)
-	rm $(BIN)$(EXE) && rm $(OBJECTS)
-
+	rm $(OBJECTS)
+	rm $(BIN)$(EXE)
+	rm $(wildcard *.cpp~)
