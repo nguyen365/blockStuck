@@ -103,9 +103,11 @@ int AppWindow::init()
 
 void AppWindow::run()
 {
-  CGame.addBlock();
+  int timeElapsed = SDL_GetTicks();
   while (isRunning())
     {
+      timeElapsed = SDL_GetTicks() - timeElapsed;
+      CGame.iterateLevel(timeElapsed);
       handleEvents();
       render();
     }
@@ -150,7 +152,7 @@ void AppWindow::render()
     for (unsigned i = 0; i < BlockList.size(); i++)
       CImageList.push_back(Image(CTextureList[BlockList[i].getColour() + TBlock],
 				 BlockList[i].getX() * TILE_SIZE + CGameWindow.x,
-				 CGameWindow.h - BlockList[i].getY() * TILE_SIZE,
+				 CGameWindow.h - (BlockList[i].getY() + 1) * TILE_SIZE,
 				 TILE_SIZE, TILE_SIZE));
   SDL_RenderClear(CRenderer);
   for (unsigned i = 0; i < CImageList.size(); i++)

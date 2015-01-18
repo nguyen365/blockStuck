@@ -24,4 +24,4 @@ clean:
 #rm $(wildcard $(OBJ)*.o) && rm $(BIN)$(EXE) && rm $(wildcard $(SRC)*.o)
 	rm $(OBJECTS)
 	rm $(BIN)$(EXE)
-	rm $(wildcard *.cpp~)
+	rm $(wildcard $(SRC)*~)
