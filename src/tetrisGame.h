@@ -13,9 +13,8 @@ const int CRotationAmount = 90;
 enum colour {CYAN, YELLOW, PURPLE, GREEN, RED, BLUE, ORANGE, DEBUG};
 enum status {ERROR, RUNNING, PAUSED};
 const int CTetrominoCentre [] = {2, 0, 1, 1, 3, 1, 1};
-std::random_device CRANDOMDEVICE;
-std::mt19937 CGENERATOR(CRANDOMDEVICE());
-std::uniform_int_distribution<int> CDISTRIBUTION(CYAN,ORANGE);
+const int CMillisecondsPerLevel = 1000;
+
 
 class Block
 {
@@ -48,6 +47,7 @@ class BlockCollection
   virtual bool eraseBlockAt(int,int);
   bool eraseSelf();
   virtual bool eraseLine(int); //will also make above blocks fall
+  virtual bool makeBlocksAboveFall(int);
   virtual bool mergeCollection(BlockCollection&);
   bool move(int,int);
   int getSize();
@@ -76,6 +76,7 @@ class StaticBlockCollection : public BlockCollection
     bool addBlock(Block);
     bool eraseBlockAt(int,int);
     bool eraseLine(int);
+    bool updateBlocks();
     bool mergeCollection(BlockCollection&);
     Block* findBlock(int iX, int iY);
 };

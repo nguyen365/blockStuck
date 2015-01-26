@@ -1,5 +1,9 @@
 #include "tetrisGame.h" 
 
+std::random_device CRANDOMDEVICE;
+std::mt19937 CGENERATOR(CRANDOMDEVICE());
+std::uniform_int_distribution<int> CDISTRIBUTION(CYAN,ORANGE);
+
 Block::Block(int iX, int iY)
   : XCoor(iX), YCoor(iY), cColour(DEBUG)
 {;}
@@ -95,12 +99,17 @@ bool BlockCollection::eraseLine(int iY)
       {
 	cBlockList.erase(cBlockList.begin() + i);
       }
-    else if (cBlockList[i].getX() == i &&
-	     cBlockList[i].getY() > iY)
-    {
-	cBlockList[i].move(0,-1);
-    }
   }
+  return true;
+}
+
+bool BlockCollection::makeBlocksAboveFall(int iY)
+{
+  for (unsigned i = 0; i < cBlockList.size(); i++)
+    if (cBlockList[i].getY() > iY)
+    {
+      cBlockList[i].move(0,-1);
+    }
   return true;
 }
 
@@ -323,6 +332,35 @@ bool StaticBlockCollection::addBlock(Block iBlock)
   return true;
 }
 
+bool StaticBlockCollection::eraseBlockAt(int iX, int iY)
+{
+  cBlockTable.erase(iY*CGridHeight + iX);
+  return BlockCollection::eraseBlockAt(iX, iY);
+}
+
+bool StaticBlockCollection::eraseLine(int iY)
+{
+  for (unsigned i = 0; i < CGridLength; i++)
+//     if (!eraseBlockAt(i,iY))
+//       return false;
+    eraseBlockAt(i,iY);
+  BlockCollection::makeBlocksAboveFall(iY);
+  updateBlocks();
+  return true;
+}
+
+bool StaticBlockCollection::updateBlocks()
+{
+  cBlockTable.clear();
+  std::vector<Block> blockList = BlockCollection::getBlockList();
+  for (unsigned i = 0; i < blockList.size(); i++)
+       {
+	 int key = blockList[i].getY() * CGridHeight + blockList[i].getX();
+	 cBlockTable.insert(std::pair<int,Block*>(key, &(blockList[i])));
+       }
+  return true;
+}
+
 bool StaticBlockCollection::mergeCollection(BlockCollection& iCollection)
 {
   std::vector<Block> blockList = iCollection.getBlockList();
@@ -389,10 +427,10 @@ bool TetrisGame::iterateLevel(int iMilliseconds)
   if (cStatus != RUNNING)
     return false;
   cTick += iMilliseconds;
-  if (cTick >= (500000/cLevel) )
+  if (cTick >= (CMillisecondsPerLevel/cLevel) )
   {
     moveBlock(0,-1);
-    cTick -= (500000/cLevel);
+    cTick = 0;//(CMillisecondsPerLevel);
   }
   if (cMergeFlag || playerTetromino.getBottomY() == 0 || checkCollision()) 
   {
@@ -433,7 +471,6 @@ bool TetrisGame::checkCollision(BlockCollection iBlockCollection)
   for (unsigned i = 0; i < BlockList.size(); i++)
     if (tetrominoStack.findBlock(BlockList[i].getX(),BlockList[i].getY()))
     {
-      std::cout << "Collision at " << BlockList[i].getX() << ", " << BlockList[i].getY() << std::endl;
       return true;
     }
   return false;
@@ -449,7 +486,7 @@ bool TetrisGame::isLineFull(int iY)
 
 bool TetrisGame::eraseFullLines()
 {
-  for (unsigned i = CGridHeight - 1; i >= 0; i--)
+  for (int i = CGridHeight - 1; i >= 0; i--)
     if (isLineFull(i))
       tetrominoStack.eraseLine(i);
   return true;

@@ -106,8 +106,8 @@ void AppWindow::run()
   int timeElapsed = SDL_GetTicks();
   while (isRunning())
     {
-      timeElapsed = SDL_GetTicks() - timeElapsed;
-      CGame.iterateLevel(timeElapsed);
+      CGame.iterateLevel(SDL_GetTicks() - timeElapsed);
+      timeElapsed = SDL_GetTicks();
       handleEvents();
       render();
     }
